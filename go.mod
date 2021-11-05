@@ -1,4 +1,4 @@
-module golang_edu
+module golang_snippets
 
 go 1.14
 

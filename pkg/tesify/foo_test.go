@@ -1,7 +1,7 @@
 package tesify
 
 import (
-	"golang_edu/third-party-package/tesify/mocks"
+	"golang_snippets/third-party-package/tesify/mocks"
 	"testing"
 )
 
