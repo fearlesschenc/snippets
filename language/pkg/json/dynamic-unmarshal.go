@@ -28,7 +28,7 @@ var data = []byte(`
 }
 `)
 
-func dynamicUnmarshal() {
+func DynamicUnmarshal() {
 	var foo Foo
 	json.Unmarshal(data, &foo)
 	switch foo.Type {

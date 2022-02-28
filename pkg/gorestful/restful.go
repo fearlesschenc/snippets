@@ -1,11 +1,12 @@
 package gorestful
 
 import (
+	"log"
+	"net/http"
+
 	restfulspec "github.com/emicklei/go-restful-openapi/v2"
 	"github.com/emicklei/go-restful/v3"
 	"github.com/go-openapi/spec"
-	"log"
-	"net/http"
 )
 
 type User struct {
@@ -21,6 +22,7 @@ type UserResource struct {
 func (u UserResource) WebService() *restful.WebService {
 	ws := new(restful.WebService)
 	ws.
+		ApiVersion("0.1.0").
 		Path("/users/v1").
 		Consumes(restful.MIME_XML, restful.MIME_JSON).
 		Produces(restful.MIME_JSON, restful.MIME_XML)
@@ -31,7 +33,6 @@ func (u UserResource) WebService() *restful.WebService {
 		Metadata(restfulspec.KeyOpenAPITags, tags).
 		Writes([]User{}).
 		Returns(200, "OK", []User{}))
-
 	ws.Route(ws.GET("/{id}").To(u.findUser))
 
 	return ws
@@ -63,11 +64,13 @@ func Main() {
 		},
 	}}
 
-	restful.DefaultContainer.Add(u.WebService())
-	//restful.Filter()
+	container := restful.NewContainer()
+	service := u.WebService()
+	//service.Path("/foo/v1")
+	container.Add(service)
 
 	config := restfulspec.Config{
-		WebServices: restful.RegisteredWebServices(),
+		WebServices: container.RegisteredWebServices(),
 		APIPath:     "/apidocs.json",
 		PostBuildSwaggerObjectHandler: func(s *spec.Swagger) {
 			s.Info = &spec.Info{
@@ -87,7 +90,7 @@ func Main() {
 				},
 			}
 			s.Tags = []spec.Tag{
-				spec.Tag{
+				{
 					TagProps: spec.TagProps{
 						Name:        "users",
 						Description: "Managing users",
@@ -96,10 +99,9 @@ func Main() {
 			}
 		},
 	}
-	restful.DefaultContainer.Add(restfulspec.NewOpenAPIService(config))
-
-	http.Handle("/apidocs/", http.StripPrefix("/apidocs/", http.FileServer(http.Dir("/Users/chenchen/Dev/tool/swagger-ui/dist"))))
+	container.Add(restfulspec.NewOpenAPIService(config))
+	container.Handle("/apidocs/", http.StripPrefix("/apidocs/", http.FileServer(http.Dir("/Users/chenchen/Downloads/swagger-ui-4.1.3/dist"))))
 
 	log.Printf("start listening on localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8080", container))
 }
