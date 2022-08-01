@@ -253,7 +253,7 @@ func GenPaasRoleBindingForType(completeRecords []PermissionTemplateRecord, typ s
 }
 
 func GenPaasRoleBindings() {
-	f, err := os.Open("/Users/chenchen/Dev/files/paas.csv.bak")
+	f, err := os.Open("/Users/chenchen/Dev/files/UI.csv")
 	if err != nil {
 		panic(err)
 	}
